@@ -36,7 +36,10 @@ def admin_index(request):
 @require_http_methods(["POST"])
 def admin_login(request):
     """Session login for admin users."""
-    data = json.loads(request.body.decode('utf-8') or '{}')
+    try:
+        data = json.loads(request.body.decode('utf-8') or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
     username = data.get('username')
     password = data.get('password')
     user = authenticate(request, username=username, password=password)
@@ -174,7 +177,11 @@ def application_create(request):
     not_logged = _require_login(request)
     if not_logged:
         return not_logged
-    payload = json.loads(request.body.decode('utf-8') or '{}')
+    
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
     obj = StudentApplication.objects.create(
         name=payload.get('name') or '',
         number=payload.get('number') or '',
@@ -203,7 +210,11 @@ def application_update(request, app_id: int):
         obj = StudentApplication.objects.get(id=app_id)
     except StudentApplication.DoesNotExist:
         return JsonResponse({'success': False, 'message': '记录不存在'}, status=404)
-    payload = json.loads(request.body.decode('utf-8') or '{}')
+    
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
     for field in ['name','number','grade','phone_number','follow_direction','good_at','reason','future','value','admin_remark']:
         if field in payload:
             setattr(obj, field, payload.get(field) or '')
@@ -321,8 +332,8 @@ def publish_announcement(request):
         return not_logged
     try:
         payload = json.loads(request.body.decode('utf-8') or '{}')
-    except Exception:
-        payload = {}
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
     message = payload.get('message')
     recipient_user_ids = payload.get('recipient_user_ids')  # list[str] or None
     if not message:
