@@ -19,6 +19,10 @@ urlpatterns = [
     path('applications/<int:app_id>/score/', views.application_score, name='admin_application_score'),
     path('applications/<int:app_id>/remark/', views.application_remark, name='admin_application_remark'),
 
+    # query by student name / number / result
+    path('applications/by-name/', views.application_by_name, name='admin_application_by_name'),
+    path('applications/result/', views.application_result_by_number, name='admin_application_result_by_number'),
+
     # announcements (only if feature exists)
     path('announcements/', views.publish_announcement, name='admin_publish_announcement'),
 ]

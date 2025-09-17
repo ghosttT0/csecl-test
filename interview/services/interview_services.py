@@ -76,15 +76,29 @@ def rate_application(app_id, score):
         except Exception as e:
             return False, f"评分失败：{str(e)}"
 
-def get_applications(filters=None):
-        """查询申请记录（支持筛选）"""
-        queryset = StudentApplication.objects.all().order_by("-book_time")  # 按申请时间倒序
+def get_applications(student_number):
+    try:
+        # 根据学号查询记录（假设 number 是模型的字段）
+        student = StudentApplication.objects.get(number=student_number)
+    except StudentApplication.DoesNotExist:
+        return False, "请输入学号", {}
 
-        # 如果有筛选条件（如按方向、年级）
-        if filters:
-            if "direction" in filters:
-                queryset = queryset.filter(follow_direction__icontains=filters["direction"])
-            if "grade" in filters:
-                queryset = queryset.filter(grade=filters["grade"])
+        # 提取 value 值并判断
+    value = student.value
+    message = ""
 
-        return queryset
+    if value is None:
+        message = "不要着急哦，你的面试成绩还在运输中，等等再来查询吧"
+    elif float(value) < 85:  # 假设 value 是字符串，转成 float 比较；若为整数，用 int
+        message = "很遗憾，您的面试没能通过，希望下次能有更好的成绩"
+    else:
+        message = "恭喜你，通过面试啦！快去注册属于你的实验室账户吧"
+
+    # # 构造返回数据（可包含更多字段，这里仅示例 value 和 message）
+    # data = {
+    #     "value": value,
+    #     "message": message,
+    #     # 可按需添加其他字段，如 student.name、student.email 等
+    # }
+
+    return True, message

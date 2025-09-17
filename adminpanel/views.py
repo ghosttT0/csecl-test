@@ -5,6 +5,7 @@ from django.contrib.auth import login as dj_login, logout as dj_logout, authenti
 from django.core.paginator import Paginator
 from interview.models import StudentApplication
 from interview.service.forum import NotificationService
+from interview.services import interview_services
 import json
 
 
@@ -23,6 +24,8 @@ def admin_index(request):
             'application_delete': '/admin/applications/<id>/delete/',
             'application_score': '/admin/applications/<id>/score/',
             'application_remark': '/admin/applications/<id>/remark/',
+            'application_by_name': '/admin/applications/by-name/?name=张三',
+            'application_result_by_number': '/admin/applications/result/?number=2025xxxxxx',
             'publish_announcement': '/admin/announcements/'
         }
     })
@@ -111,6 +114,56 @@ def application_list(request):
             'page_size': page_size
         }
     })
+
+
+# --- Applications: Query by name ---
+@require_http_methods(["GET"])
+def application_by_name(request):
+    """Query applications by exact or fuzzy student name."""
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+
+    name = (request.GET.get('name') or '').strip()
+    if not name:
+        return JsonResponse({'success': False, 'message': 'name 不能为空'}, status=400)
+
+    qs = StudentApplication.objects.filter(name__icontains=name).order_by('-created_at')
+
+    def to_dict(obj: StudentApplication):
+        return {
+            'id': obj.id,
+            'name': obj.name,
+            'number': obj.number,
+            'grade': obj.grade,
+            'phone_number': obj.phone_number,
+            'gaokao_math': obj.gaokao_math,
+            'gaokao_english': obj.gaokao_english,
+            'follow_direction': obj.follow_direction,
+            'good_at': obj.good_at,
+            'reason': obj.reason,
+            'future': obj.future,
+            'value': obj.value,
+            'admin_remark': getattr(obj, 'admin_remark', None),
+            'book_time': obj.book_time,
+            'created_at': obj.created_at,
+        }
+
+    data = [to_dict(x) for x in qs]
+    return JsonResponse({'success': True, 'data': data})
+
+
+# --- Applications: Result by number (reuse interview_services) ---
+@require_http_methods(["GET"])
+def application_result_by_number(request):
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    number = (request.GET.get('number') or '').strip()
+    if not number:
+        return JsonResponse({'success': False, 'message': 'number 不能为空'}, status=400)
+    ok, message = interview_services.get_applications(number)
+    return JsonResponse({'success': bool(ok), 'message': message})
 
 
 # --- Applications: CRUD ---
