@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>管理员登录</title>
+	<style>
+		body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 40px; background: #f6f7f9; }
+		.container { max-width: 420px; margin: 0 auto; background: #fff; border: 1px solid #e7e9ee; border-radius: 10px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+		h1 { font-size: 20px; margin: 0 0 16px; }
+		label { display: block; font-size: 13px; color: #444; margin: 10px 0 6px; }
+		input { width: 100%; padding: 10px 12px; border: 1px solid #d6dae1; border-radius: 8px; font-size: 14px; }
+		button { width: 100%; margin-top: 16px; padding: 10px 12px; background: #1677ff; color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-size: 14px; }
+		button:disabled { opacity: .6; cursor: not-allowed; }
+		.msg { margin-top: 12px; font-size: 13px; color: #d93025; min-height: 18px; }
+		.tip { font-size: 12px; color: #666; margin-top: 8px; }
+		.links { margin-top: 16px; font-size: 13px; }
+		.links a { color: #1677ff; text-decoration: none; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>管理员登录</h1>
+		<label>用户名</label>
+		<input id="username" placeholder="admin" value="admin" />
+		<label>密码</label>
+		<input id="password" type="password" placeholder="admin" value="admin" />
+		<button id="loginBtn">登录</button>
+		<div id="msg" class="msg"></div>
+		<div class="tip">成功后跳转到报名管理页。</div>
+		<div class="links">
+			<a href="apps.html">跳过登录（若已有会话）</a>
+		</div>
+	</div>
+
+	<script>
+	const BASE = location.origin;
+	const msg = document.getElementById('msg');
+	const btn = document.getElementById('loginBtn');
+	btn.addEventListener('click', async () => {
+		msg.textContent = '';
+		btn.disabled = true;
+		try {
+			const username = document.getElementById('username').value.trim();
+			const password = document.getElementById('password').value;
+			const res = await fetch(`${BASE}/admin/auth/login/`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+				body: JSON.stringify({ username, password })
+			});
+			const data = await res.json().catch(() => ({}));
+			if (res.ok && data.success) {
+				location.href = 'apps.html';
+			} else {
+				msg.textContent = data.message || `登录失败 (${res.status})`;
+			}
+		} catch (e) {
+			msg.textContent = '网络错误';
+		} finally {
+			btn.disabled = false;
+		}
+	});
+	</script>
+</body>
+</html>

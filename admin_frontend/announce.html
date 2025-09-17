@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>发布公告</title>
+	<style>
+		body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 24px; background: #f7f8fa; }
+		h1 { margin: 0 0 16px; font-size: 20px; }
+		.container { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #e7e9ee; border-radius: 10px; padding: 16px; }
+		textarea, input { width: 100%; padding: 10px 12px; border: 1px solid #d6dae1; border-radius: 8px; font-size: 14px; }
+		textarea { min-height: 120px; }
+		button { padding: 10px 12px; background: #1677ff; color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-size: 14px; }
+		.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+		.nav a { text-decoration: none; color: #1677ff; margin-left: 12px; font-size: 13px; }
+		.msg { margin-top: 10px; color: #d93025; min-height: 18px; font-size: 13px; }
+	</style>
+</head>
+<body>
+	<div class="header">
+		<h1>发布公告</h1>
+		<div class="nav">
+			<a href="index.html">登录</a>
+			<a href="apps.html">报名管理</a>
+		</div>
+	</div>
+	<div class="container">
+		<label>公告内容</label>
+		<textarea id="message" placeholder="请输入公告内容"></textarea>
+		<label>定向用户ID（可选，逗号分隔）</label>
+		<input id="targets" placeholder="如 user1,user2（留空为广播）" />
+		<div style="margin-top: 10px; display:flex; gap:8px;">
+			<button id="send">发布</button>
+		</div>
+		<div id="msg" class="msg"></div>
+	</div>
+
+	<script>
+	const BASE = location.origin;
+	const msg = document.getElementById('msg');
+	function showMsg(t){ msg.textContent = t || ''; }
+
+	document.getElementById('send').addEventListener('click', async () => {
+		showMsg('');
+		try {
+			const message = document.getElementById('message').value.trim();
+			if(!message){ showMsg('公告内容不能为空'); return; }
+			const raw = document.getElementById('targets').value.trim();
+			const recipient_user_ids = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+			const res = await fetch(`${BASE}/admin/announcements/`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message, recipient_user_ids })
+			});
+			const data = await res.json().catch(() => ({}));
+			if(res.ok && data.success){
+				showMsg(data.message || '发布成功');
+			} else {
+				showMsg(data.message || `发布失败 (${res.status})`);
+			}
+		} catch(e){ showMsg('网络错误'); }
+	});
+	</script>
+</body>
+</html>
