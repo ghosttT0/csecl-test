@@ -19,6 +19,7 @@ class Post(models.Model):
 
     # 帖子状态字段
     is_sticky = models.BooleanField(default=False, verbose_name="是否置顶")  # 是否置顶，默认为False
+    is_featured = models.BooleanField(default=False, verbose_name="是否加精")  # 是否加精，默认为False
     comment_count = models.IntegerField(default=0, verbose_name="评论次数")  # 评论次数，默认为0
 
     # 时间字段

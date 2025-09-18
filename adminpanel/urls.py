@@ -25,4 +25,10 @@ urlpatterns = [
 
     # announcements (only if feature exists)
     path('announcements/', views.publish_announcement, name='admin_publish_announcement'),
+
+    # forum admin
+    path('forum/posts/', views.forum_posts, name='admin_forum_posts'),
+    path('forum/posts/<int:post_id>/pin/', views.forum_post_pin, name='admin_forum_post_pin'),
+    path('forum/posts/<int:post_id>/feature/', views.forum_post_feature, name='admin_forum_post_feature'),
+    path('forum/posts/<int:post_id>/delete/', views.forum_post_delete, name='admin_forum_post_delete'),
 ]

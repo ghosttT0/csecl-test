@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login as dj_login, logout as dj_logout, authenticate
 from django.core.paginator import Paginator
 from interview.models import StudentApplication
+from interview.models import Post
 from interview.service.forum import NotificationService
 from interview.services import interview_services
 import json
@@ -26,7 +27,11 @@ def admin_index(request):
             'application_remark': '/admin/applications/<id>/remark/',
             'application_by_name': '/admin/applications/by-name/?name=张三',
             'application_result_by_number': '/admin/applications/result/?number=2025xxxxxx',
-            'publish_announcement': '/admin/announcements/'
+            'publish_announcement': '/admin/announcements/',
+            'forum_posts': '/admin/forum/posts/',
+            'forum_post_pin': '/admin/forum/posts/<id>/pin/',
+            'forum_post_feature': '/admin/forum/posts/<id>/feature/',
+            'forum_post_delete': '/admin/forum/posts/<id>/delete/'
         }
     })
 
@@ -35,18 +40,13 @@ def admin_index(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def admin_login(request):
-    """Session login for admin users. Accepts JSON or form data."""
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    if not username or not password:
-        try:
-            data = json.loads(request.body.decode('utf-8') or '{}')
-            username = username or data.get('username')
-            password = password or data.get('password')
-        except json.JSONDecodeError:
-            pass
-    if not username or not password:
-        return JsonResponse({'success': False, 'message': '用户名或密码不能为空'}, status=400)
+    """Session login for admin users."""
+    try:
+        data = json.loads(request.body.decode('utf-8') or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
+    username = data.get('username')
+    password = data.get('password')
     user = authenticate(request, username=username, password=password)
     if user is None:
         return JsonResponse({"success": False, "message": "用户名或密码错误"}, status=401)
@@ -65,6 +65,80 @@ def _require_login(request):
     if not getattr(request, 'user', None) or not request.user.is_authenticated:
         return JsonResponse({"success": False, "message": "未登录"}, status=401)
     return None
+# --- Forum admin: list & actions ---
+@require_http_methods(["GET"])
+def forum_posts(request):
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    # 简单分页
+    page = int(request.GET.get('page', 1))
+    page_size = int(request.GET.get('page_size', 10))
+    qs = Post.objects.all().order_by('-is_sticky', '-is_featured', '-created_at')
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, page_size)
+    page_obj = paginator.get_page(page)
+    data = [{
+        'id': p.id,
+        'title': p.title,
+        'user_id': p.user_id,
+        'is_sticky': p.is_sticky,
+        'is_featured': getattr(p, 'is_featured', False),
+        'comment_count': p.comment_count,
+        'created_at': p.created_at,
+    } for p in page_obj.object_list]
+    return JsonResponse({'success': True, 'data': data, 'pagination': {
+        'current_page': page_obj.number,
+        'total_pages': paginator.num_pages,
+        'total_items': paginator.count,
+        'page_size': page_size,
+    }})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def forum_post_pin(request, post_id: int):
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    try:
+        post = Post.objects.get(id=post_id)
+        post.is_sticky = not post.is_sticky
+        post.save()
+        return JsonResponse({'success': True, 'is_sticky': post.is_sticky})
+    except Post.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '帖子不存在'}, status=404)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def forum_post_feature(request, post_id: int):
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    try:
+        post = Post.objects.get(id=post_id)
+        if hasattr(post, 'is_featured'):
+            post.is_featured = not post.is_featured
+            post.save()
+            return JsonResponse({'success': True, 'is_featured': post.is_featured})
+        return JsonResponse({'success': False, 'message': '未支持加精字段'}, status=400)
+    except Post.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '帖子不存在'}, status=404)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def forum_post_delete(request, post_id: int):
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    try:
+        post = Post.objects.get(id=post_id)
+        post.delete()
+        return JsonResponse({'success': True})
+    except Post.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '帖子不存在'}, status=404)
 
 
 # --- Applications: Read list ---
