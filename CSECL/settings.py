@@ -155,7 +155,8 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # 将仓库根目录下的 admin_frontend 作为静态源
 STATICFILES_DIRS = [
-    (BASE_DIR / 'admin_frontend'),
+    (BASE_DIR / 'admin_frontend'),           # 若前端位于 CSECL/admin_frontend
+    (BASE_DIR.parent / 'admin_frontend'),    # 若前端位于 仓库根/admin_frontend
 ]
 
 # WhiteNoise 压缩与缓存
