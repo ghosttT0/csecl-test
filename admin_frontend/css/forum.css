@@ -1,0 +1,7 @@
+.actions {
+  display: flex;
+  gap: 8px;
+}
+.message { margin: 12px 0; padding: 10px 12px; border-radius: 8px; display:none; }
+.message.success { background:#e8f7ef; color:#1f7a4a; }
+.message.error { background:#fdecea; color:#b3261e; }
