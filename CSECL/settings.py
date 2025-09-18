@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -149,7 +150,16 @@ USE_TZ = False  # 改为False是因为如果USE_TZ = True那么就算更改了TI
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+# 收集到容器内的静态目录（Zeabur 部署前需要 collectstatic）
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# 将仓库根目录下的 admin_frontend 作为静态源
+STATICFILES_DIRS = [
+    (BASE_DIR.parent / 'admin_frontend'),
+]
+
+# WhiteNoise 压缩与缓存
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -200,3 +210,5 @@ REST_FRAMEWORK = {
 # python manage.py runserver
 # python manage.py makemigrations
 # python manage.py migrate
+# python manage.py createsuperuser
+# python manage.py makemigrations interview && python manage.py migrate

@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.views.static import serve as static_serve
+from django.conf import settings
 from django.http import JsonResponse
 
 def home_view(request):
@@ -31,7 +33,8 @@ def home_view(request):
     })
 
 urlpatterns = [
-    path("", home_view, name='home'),
+    # 将根路径重定向到静态登录页（同源前端）
+    path("", RedirectView.as_view(url='/index.html', permanent=False), name='home'),
     path("djadmin/", admin.site.urls),
 
     # path('user/', include('user.urls')),
