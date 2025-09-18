@@ -19,7 +19,8 @@ def submit_application(data):
                 "phone_number":"电话",
                 "gaokao_math": "高考数学成绩",  # 匹配 Postman 中的 "math"
                 "gaokao_english": "高考英语成绩",  # 匹配 Postman 中的 "english"
-                "follow_direction": "发展方向"  # 匹配 Postman 中的 "direction"
+                "follow_direction": "发展方向" , # 匹配 Postman 中的 "direction"
+                "email":"邮件"
             }
             # 检查必填字段是否缺失
             for key, field_name in required_fields.items():
@@ -35,12 +36,16 @@ def submit_application(data):
                 name=data.get("name", ""),  # 可选字段，默认空字符串
                 number=data["number"],
                 grade=data["grade"],
-                phone_number=data["phone_number"],  # 模型字段 phone_number ← 数据键名 phone
-                gaokao_math=int(data["gaokao_math"]),  # 模型字段 gaokao_math ← 数据键名 math
-                gaokao_english=int(data["gaokao_english"]),  # 模型字段 gaokao_english ← 数据键名 english
-                follow_direction=data["follow_direction"],  # 模型字段 follow_direction ← 数据键名 direction
+                phone_number=data["phone_number"],
+                gaokao_math=int(data["gaokao_math"]),
+                gaokao_english=int(data["gaokao_english"]),
+                follow_direction=data["follow_direction"],
                 good_at=data.get("good_at", ""),  # 可选字段
                 reason=data.get("reason", ""),  # 可选字段
+                experience=data.get("experience",""),
+                major=data.get("major",""),
+                email=data.get("email",""),
+                other_lab=data.get("other_lab",""),
                 future=data.get("future",""),
                 book_time=data.get("book_time") or timezone.now()
             )
@@ -50,31 +55,11 @@ def submit_application(data):
             return True, f"申请成功！申请ID：{application.id}"
 
         except ValueError:
-            return False, "数据格式错误：数学/英语成绩必须是数字"
+            return False, "数据格式错误"
         except IntegrityError:
             return False, "数据库错误：数据不符合表结构约束（如字段长度超限）"
         except Exception as e:
             return False, f"提交失败：{str(e)}"  # 捕获其他错误，便于调试
-
-def rate_application(app_id, score):
-        """管理员评分"""
-        try:
-            # 查询申请记录
-            application = StudentApplication.objects.get(id=app_id)
-
-            # 校验评分格式（示例：1-10分）
-            if not (score.isdigit() and 1 <= int(score) <= 10):
-                return False, "评分必须是1-10的数字"
-
-            # 更新评分
-            application.value = score
-            application.save()
-            return True, "评分成功"
-
-        except StudentApplication.DoesNotExist:
-            return False, "申请记录不存在"
-        except Exception as e:
-            return False, f"评分失败：{str(e)}"
 
 def get_applications(student_number):
     try:

@@ -1,3 +1,4 @@
+from corsheaders.defaults import default_headers, default_methods
 """
 Django settings for CSECL project.
 
@@ -155,22 +156,34 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# 在 setting.py 末尾添加以下设置
-CORS_ALLOW_CREDENTIALS = True  # 指明在跨域访问中，后端是否支持对cookie的操作
-CORS_ORIGIN_ALLOW_ALL = True  # 允许所有主机请求你的API
-CORS_ALLOW_ALL_ORIGINS = True
-# 允许所有请求头
-CORS_ALLOW_HEADERS = '*'
-# 允许所有方法
-CORS_ALLOW_METHODS = "*"
+# 在 setting.py 末尾添加以下设置（显式白名单，便于带凭证跨域）
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+]
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'content-type',
+    'Content-Type',
+]
+CORS_ALLOW_METHODS = list(default_methods)
+
+# CSRF 信任的来源（带凭证跨域需要）
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+]
 
 LOGIN_REDIRECT_URL = '/index'
 
 # cookie跨域问题解决
 # 会话cookie上SameSite标志的值。此标志防止在跨站点请求中发送cookie，从而防止CSRF攻击，并使某些窃取会话cookie的方法不可能实现。
-SESSION_COOKIE_SAMESITE = None  # response header set-cookie:samesite=lax  Default: 'Lax'
+SESSION_COOKIE_SAMESITE = None
 CSRF_COOKIE_SAMESITE = None
 SESSION_COOKIE_HTTPONLY = False
+# 跨站发送 Cookie 需要 Secure（后端使用 HTTPS 时才会生效；本地请求目标为 HTTPS 也可设置）
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # DRF全局配置
 REST_FRAMEWORK = {
