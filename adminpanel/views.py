@@ -35,13 +35,18 @@ def admin_index(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def admin_login(request):
-    """Session login for admin users."""
-    try:
-        data = json.loads(request.body.decode('utf-8') or '{}')
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'message': '请求数据格式错误，需要有效的 JSON'}, status=400)
-    username = data.get('username')
-    password = data.get('password')
+    """Session login for admin users. Accepts JSON or form data."""
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    if not username or not password:
+        try:
+            data = json.loads(request.body.decode('utf-8') or '{}')
+            username = username or data.get('username')
+            password = password or data.get('password')
+        except json.JSONDecodeError:
+            pass
+    if not username or not password:
+        return JsonResponse({'success': False, 'message': '用户名或密码不能为空'}, status=400)
     user = authenticate(request, username=username, password=password)
     if user is None:
         return JsonResponse({"success": False, "message": "用户名或密码错误"}, status=401)
