@@ -33,8 +33,19 @@ def home_view(request):
     })
 
 urlpatterns = [
-    # 将根路径重定向到静态登录页（同源前端）
-    path("", RedirectView.as_view(url='/index.html', permanent=False), name='home'),
+    # 将根路径与常用页面重定向到静态页面（由 WhiteNoise 在 /static/ 下提供）
+    path("", RedirectView.as_view(url='/static/index.html', permanent=False), name='home'),
+    path("index.html", RedirectView.as_view(url='/static/index.html', permanent=False)),
+    path("apps.html", RedirectView.as_view(url='/static/apps.html', permanent=False)),
+    path("announce.html", RedirectView.as_view(url='/static/announce.html', permanent=False)),
+    path("forum.html", RedirectView.as_view(url='/static/forum.html', permanent=False)),
+    path("detail.html", RedirectView.as_view(url='/static/detail.html', permanent=False)),
+    # 兼容误访问 /admin/*.html，跳到静态页
+    path("admin/index.html", RedirectView.as_view(url='/static/index.html', permanent=False)),
+    path("admin/apps.html", RedirectView.as_view(url='/static/apps.html', permanent=False)),
+    path("admin/announce.html", RedirectView.as_view(url='/static/announce.html', permanent=False)),
+    path("admin/forum.html", RedirectView.as_view(url='/static/forum.html', permanent=False)),
+    path("admin/detail.html", RedirectView.as_view(url='/static/detail.html', permanent=False)),
     path("djadmin/", admin.site.urls),
 
     # path('user/', include('user.urls')),
