@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名管理 - CSECL 管理后台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/apps.css">
+</head>
+<body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand"><i class="fas fa-gear"></i> 管理后台</div>
+        <nav class="menu">
+          <a class="menu-item active" href="apps.html"><i class="fas fa-users"></i><span>报名管理</span></a>
+          <a class="menu-item" href="announce.html"><i class="fas fa-bullhorn"></i><span>发布公告</span></a>
+          <a class="menu-item" href="forum.html"><i class="fas fa-comments"></i><span>论坛管理</span></a>
+          <a class="menu-item" href="#" id="logout"><i class="fas fa-sign-out-alt"></i><span>退出登录</span></a>
+        </nav>
+      </aside>
+
+      <main class="main">
+    <div class="container">
+        <!-- 统计卡片 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>总报名人数</h3>
+                <div class="number" id="totalCount">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>已评分人数</h3>
+                <div class="number" id="scoredCount">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>通过人数</h3>
+                <div class="number" id="passedCount">-</div>
+		</div>
+	</div>
+
+        <!-- 搜索控制 -->
+        <div class="controls">
+            <h2><i class="fas fa-search"></i> 搜索与筛选</h2>
+            <div class="search-row">
+                <div class="form-group">
+                    <label>学号搜索</label>
+                    <input type="text" id="searchNumber" placeholder="输入学号进行搜索">
+                </div>
+                <div class="form-group">
+                    <label>姓名搜索</label>
+                    <input type="text" id="searchName" placeholder="输入姓名进行搜索">
+                </div>
+                <div class="form-group">
+                    <label>方向筛选</label>
+                    <select id="directionFilter">
+                        <option value="">全部方向</option>
+                        <option value="前端">前端</option>
+                        <option value="后端">后端</option>
+                        <option value="人工智能AI">人工智能AI</option>
+                        <option value="产品">产品</option>
+                        <option value="其他意向">其他意向</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>年级筛选</label>
+                    <select id="gradeFilter">
+                        <option value="">全部年级</option>
+                        <option value="大一">大一</option>
+                        <option value="大二">大二</option>
+                        <option value="大三">大三</option>
+                        <option value="大四">大四</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="searchBtn">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="addBtn">
+                    <i class="fas fa-plus"></i> 新增报名
+                </button>
+                <button class="btn btn-success" id="exportBtn">
+                    <i class="fas fa-download"></i> 导出数据
+                </button>
+            </div>
+	</div>
+
+        <div id="message" class="message" style="display: none;"></div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>姓名</th>
+				<th>学号</th>
+				<th>年级</th>
+                        <th>专业班级</th>
+				<th>分数</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+                <tbody id="dataTable">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            <i class="fas fa-spinner fa-spin"></i> 加载中...
+                        </td>
+                    </tr>
+                </tbody>
+	</table>
+	</div>
+
+        <!-- 分页 -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <button id="prevBtn"><i class="fas fa-chevron-left"></i> 上一页</button>
+            <span id="pageInfo">第 1 页，共 1 页</span>
+            <button id="nextBtn">下一页 <i class="fas fa-chevron-right"></i></button>
+        </div>
+            </div>
+
+      </main>
+			</div>
+
+    <!-- 新增报名模态框 -->
+    <div class="modal" id="addModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> 新增报名</h3>
+                <button class="close-btn" onclick="closeModal('addModal')">&times;</button>
+            </div>
+            <form id="addForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名 *</label>
+                        <input type="text" id="addName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>学号 *</label>
+                        <input type="text" id="addNumber" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>年级 *</label>
+                        <select id="addGrade" required>
+                            <option value="">请选择年级</option>
+                            <option value="大一">大一</option>
+                            <option value="大二">大二</option>
+                            <option value="大三">大三</option>
+                            <option value="大四">大四</option>
+                            <option value="研究生">研究生</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>专业班级</label>
+                        <input type="text" id="addMajor">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>手机号 *</label>
+                        <input type="tel" id="addPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email" id="addEmail">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>高考数学成绩</label>
+                        <input type="number" id="addMath" min="0" max="150">
+                    </div>
+                    <div class="form-group">
+                        <label>高考英语成绩</label>
+                        <input type="number" id="addEnglish" min="0" max="150">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>意向方向</label>
+                    <input type="text" id="addDirection">
+                </div>
+                <div class="form-group">
+                    <label>擅长领域</label>
+                    <input type="text" id="addGoodAt">
+                </div>
+                <div class="form-group">
+                    <label>报名原因</label>
+                    <textarea id="addReason" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>未来规划</label>
+                    <textarea id="addFuture" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>项目经历</label>
+                    <textarea id="addExperience" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>其他实验室报名情况</label>
+                    <input type="text" id="addOtherLab">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">取消</button>
+                    <button type="submit" class="btn btn-primary" id="saveAddBtn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 评分模态框 -->
+    <div class="modal" id="scoreModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-star"></i> 评分</h3>
+                <button class="close-btn" onclick="closeModal('scoreModal')">&times;</button>
+			</div>
+            <div class="score-input">
+                <label>分数 (1-100):</label>
+                <input type="number" id="scoreInput" min="1" max="100" placeholder="请输入分数">
+                <button class="btn btn-primary" id="saveScoreBtn">保存</button>
+			</div>
+		</div>
+	</div>
+
+    <!-- 备注模态框 -->
+    <div class="modal" id="remarkModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-comment"></i> 添加备注</h3>
+                <button class="close-btn" onclick="closeModal('remarkModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>备注内容:</label>
+                <textarea id="remarkInput" rows="4" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; resize: vertical;"></textarea>
+            </div>
+            <button class="btn btn-primary" id="saveRemarkBtn">保存</button>
+        </div>
+    </div>
+
+    <script src="js/apps.js"></script>
+</body>
+</html>

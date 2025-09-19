@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布公告 - CSECL 管理后台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/announce.css">
+</head>
+<body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand"><i class="fas fa-gear"></i> 管理后台</div>
+        <nav class="menu">
+          <a class="menu-item" href="apps.html"><i class="fas fa-users"></i><span>报名管理</span></a>
+          <a class="menu-item active" href="announce.html"><i class="fas fa-bullhorn"></i><span>发布公告</span></a>
+          <a class="menu-item" href="forum.html"><i class="fas fa-comments"></i><span>论坛管理</span></a>
+          <a class="menu-item" href="#" id="logout"><i class="fas fa-sign-out-alt"></i><span>退出登录</span></a>
+        </nav>
+      </aside>
+
+      <main class="main">
+    <div class="container">
+        <div class="card">
+            <h2><i class="fas fa-edit"></i> 发布新公告</h2>
+            
+            <form id="announceForm">
+                <div class="form-group">
+                    <label for="message">公告内容 *</label>
+                    <textarea id="message" placeholder="请输入公告内容..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>发送对象</label>
+                    <div class="recipient-options">
+                        <div class="recipient-option" onclick="selectRecipient('all')">
+                            <input type="radio" name="recipient" value="all" id="all" checked>
+                            <label for="all">
+                                <i class="fas fa-globe"></i> 全体用户
+                                <p>发送给所有注册用户</p>
+                            </label>
+                        </div>
+                        <div class="recipient-option" onclick="selectRecipient('applicants')">
+                            <input type="radio" name="recipient" value="applicants" id="applicants">
+                            <label for="applicants">
+                                <i class="fas fa-user-graduate"></i> 报名学生
+                                <p>仅发送给已报名的学生</p>
+                            </label>
+                        </div>
+                        <div class="recipient-option" onclick="selectRecipient('passed')">
+                            <input type="radio" name="recipient" value="passed" id="passed">
+                            <label for="passed">
+                                <i class="fas fa-check-circle"></i> 通过学生
+                                <p>仅发送给面试通过的学生</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="customRecipients">自定义接收者（可选）</label>
+                    <input type="text" id="customRecipients" placeholder="输入用户ID，多个用逗号分隔，如：1,2,3">
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                        留空则使用上方选择的发送对象
+                    </small>
+                </div>
+
+                <div class="preview" id="preview" style="display: none;">
+                    <h3><i class="fas fa-eye"></i> 预览</h3>
+                    <div class="preview-content" id="previewContent"></div>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" id="previewBtn">
+                        <i class="fas fa-eye"></i> 预览
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> 发布公告
+                    </button>
+                </div>
+            </form>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2><i class="fas fa-graduation-cap"></i> 面试结果管理</h2>
+                <div style="display: flex; gap: 15px; margin-top: 15px;">
+                    <button type="button" class="btn btn-success" id="releaseResultsBtn">
+                        <i class="fas fa-check-circle"></i> 发布面试结果
+                    </button>
+                    <button type="button" class="btn btn-warning" id="hideResultsBtn">
+                        <i class="fas fa-eye-slash"></i> 隐藏面试结果
+                    </button>
+                </div>
+                <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                    发布后学生可以查询面试成绩，隐藏后学生无法查询
+                </p>
+            </div>
+
+            <div id="message" class="message" style="display: none;"></div>
+        </div>
+
+        <div class="card history">
+            <h2><i class="fas fa-history"></i> 公告历史</h2>
+            <div id="historyList">
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <i class="fas fa-spinner fa-spin"></i> 加载中...
+                </div>
+            </div>
+        </div>
+    </div>
+      </main>
+    </div>
+
+    <script src="js/announce.js"></script>
+</body>
+</html>

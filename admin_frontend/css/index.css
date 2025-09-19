@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+/* remove Liquid Ether background */
+
+.login-container {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    padding: 36px;
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid #eef0f3;
+    opacity: 0;
+    transform: translateY(40px) scale(0.85);
+    animation: morphIn 520ms cubic-bezier(.2,.8,.2,1) forwards;
+    position: relative;
+    z-index: 1;
+}
+
+.logo { text-align: center; margin-bottom: 24px; }
+.logo h1 { color: #111; font-size: 22px; font-weight: 700; }
+
+.form-group { margin-bottom: 20px; position: relative; }
+.form-group label { display: block; color: #555; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+.input-wrapper { position: relative; }
+.input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; font-size: 16px; }
+.form-group input { width: 100%; padding: 14px 14px 14px 45px; border: 1px solid #e6e8eb; border-radius: 14px; font-size: 15px; transition: all 0.2s ease; background: #fff; }
+.form-group input:focus { outline: none; border-color: #34d399; box-shadow: 0 0 0 4px rgba(16,185,129,0.12); }
+
+.login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg,#000000,#000000); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; margin-top: 10px; box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+.login-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(16,185,129,0.35); }
+.login-btn:active { transform: translateY(0); filter: brightness(0.98); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.message { margin-top: 12px; padding: 10px; border-radius: 10px; font-size: 13px; text-align: center; min-height: 20px; }
+.message.error { background: #fff2f2; color: #b42318; border: 1px solid #f0c2c2; }
+.message.success { background: #eefaf0; color: #0f5132; border: 1px solid #c9e8d1; }
+
+.links { display: none; }
+.demo-info { display: none; }
+
+@media (max-width: 480px) {
+  .login-container { padding: 30px 20px; margin: 10px; }
+}
+
+/* 圆形 -> 卡片 变形弹入动画（黑白基调，绿松石点缀） */
+@keyframes morphIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.6);
+    border-radius: 999px;
+    box-shadow: 0 0 0 0 rgba(20,184,166,0.0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.02);
+    border-radius: 28px;
+    box-shadow: 0 20px 50px rgba(20,184,166,0.12);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  }
+}
+
