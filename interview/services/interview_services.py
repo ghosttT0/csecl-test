@@ -67,12 +67,12 @@ def get_applications(student_number):
         # 根据学号查询记录（假设 number 是模型的字段）
         student = StudentApplication.objects.get(number=student_number)
     except StudentApplication.DoesNotExist:
-        return False, "请输入学号", {}
+        return False, "请输入学号"
 
     # 发布/隐藏控制：未发布则不允许查询
     released = cache.get('interview_results_released', False)
     if not released:
-        return False, "面试结果尚未发布，请稍后再试", {}
+        return False, "面试结果尚未发布，请稍后再试"
 
     # 提取 value 值并判断
     value = student.value
@@ -85,11 +85,5 @@ def get_applications(student_number):
     else:
         message = "恭喜你，通过面试啦！快去注册属于你的实验室账户吧"
 
-    # # 构造返回数据（可包含更多字段，这里仅示例 value 和 message）
-    # data = {
-    #     "value": value,
-    #     "message": message,
-    #     # 可按需添加其他字段，如 student.name、student.email 等
-    # }
 
     return True, message
