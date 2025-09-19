@@ -67,8 +67,22 @@ async function handleSubmit(e) {
 async function loadHistory() {
   try {
     const historyList = document.getElementById('historyList');
-    historyList.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;"><i class=\"fas fa-info-circle\"></i> 暂无历史公告</div>`;
-  } catch (e) { }
+    historyList.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;"><i class=\"fas fa-spinner fa-spin\"></i> 加载中...</div>`;
+    const resp = await fetch('/admin/announcements/list/', { credentials: 'include' });
+    if (resp.status === 401) { historyList.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">请先登录</div>'; return; }
+    const data = await resp.json();
+    if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+      historyList.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;"><i class=\"fas fa-info-circle\"></i> 暂无历史公告</div>`;
+      return;
+    }
+    historyList.innerHTML = data.data.map(item => `
+      <div class="history-item">
+        <h4>📢 系统公告</h4>
+        <div class="meta">${new Date(item.created_at).toLocaleString()}${item.recipient_user_id ? ` · 定向用户 ${item.recipient_user_id}` : ' · 广播'} </div>
+        <div class="content">${String(item.message || '').replace(/\n/g,'<br>')}</div>
+      </div>
+    `).join('');
+  } catch (e) { const historyList = document.getElementById('historyList'); historyList.innerHTML = `<div style="text-align:center;padding:40px;color:#999;">加载失败</div>`; }
 }
 
 async function releaseResults() {

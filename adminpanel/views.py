@@ -29,6 +29,7 @@ def admin_index(request):
             'application_by_name': '/admin/applications/by-name/?name=张三',
             'application_result_by_number': '/admin/applications/result/?number=2025xxxxxx',
             'publish_announcement': '/admin/announcements/',
+            'announcements_list': '/admin/announcements/list/',
             'forum_posts': '/admin/forum/posts/',
             'forum_post_pin': '/admin/forum/posts/<id>/pin/',
             'forum_post_feature': '/admin/forum/posts/<id>/feature/',
@@ -435,6 +436,25 @@ def publish_announcement(request):
 
     result = NotificationService.create_announcement(message, recipient_user_ids, sender_user_id=str(request.user.id))
     return JsonResponse(result)
+
+
+@require_http_methods(["GET"])
+def list_announcements(request):
+    """Return latest announcements for history section (broadcast + directed to any)."""
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    # 读取最新20条公告（含广播），按时间倒序
+    from interview.models import Notification
+    qs = Notification.objects.filter(notification_type='announcement').order_by('-created_at')[:20]
+    data = [{
+        'id': n.id,
+        'message': n.message,
+        'created_at': n.created_at,
+        'recipient_user_id': n.recipient_user_id,
+        'sender_user_id': n.sender_user_id,
+    } for n in qs]
+    return JsonResponse({'success': True, 'data': data})
 
 
 # --- Results release control ---

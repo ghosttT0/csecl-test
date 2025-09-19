@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import IntegrityError
 from interview.models import StudentApplication  # 导入模型
+from django.core.cache import cache
 
 
 """学生申请业务逻辑类"""
@@ -68,7 +69,12 @@ def get_applications(student_number):
     except StudentApplication.DoesNotExist:
         return False, "请输入学号", {}
 
-        # 提取 value 值并判断
+    # 发布/隐藏控制：未发布则不允许查询
+    released = cache.get('interview_results_released', False)
+    if not released:
+        return False, "面试结果尚未发布，请稍后再试", {}
+
+    # 提取 value 值并判断
     value = student.value
     message = ""
 

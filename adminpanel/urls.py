@@ -23,8 +23,9 @@ urlpatterns = [
     path('applications/by-name/', views.application_by_name, name='admin_application_by_name'),
     path('applications/result/', views.application_result_by_number, name='admin_application_result_by_number'),
 
-    # announcements (only if feature exists)
+    # announcements
     path('announcements/', views.publish_announcement, name='admin_publish_announcement'),
+    path('announcements/list/', views.list_announcements, name='admin_list_announcements'),
     # results release control
     path('results/release/', views.release_results, name='admin_results_release'),
     path('results/hide/', views.hide_results, name='admin_results_hide'),
