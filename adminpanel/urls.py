@@ -25,6 +25,9 @@ urlpatterns = [
 
     # announcements (only if feature exists)
     path('announcements/', views.publish_announcement, name='admin_publish_announcement'),
+    # results release control
+    path('results/release/', views.release_results, name='admin_results_release'),
+    path('results/hide/', views.hide_results, name='admin_results_hide'),
 
     # forum admin
     path('forum/posts/', views.forum_posts, name='admin_forum_posts'),

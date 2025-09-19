@@ -7,6 +7,7 @@ from interview.models import StudentApplication
 from interview.models import Post
 from interview.service.forum import NotificationService
 from interview.services import interview_services
+from django.core.cache import cache
 import json
 
 
@@ -174,12 +175,15 @@ def application_list(request):
             'grade': obj.grade,
             'major': obj.major,
             'phone_number': obj.phone_number,
+            'email': getattr(obj, 'email', None),
             'gaokao_math': obj.gaokao_math,
             'gaokao_english': obj.gaokao_english,
             'follow_direction': obj.follow_direction,
             'good_at': obj.good_at,
             'reason': obj.reason,
             'future': obj.future,
+            'experience': getattr(obj, 'experience', None),
+            'other_lab': getattr(obj, 'other_lab', None),
             'value': obj.value,
             'admin_remark': getattr(obj, 'admin_remark', None),
             'book_time': obj.book_time,
@@ -221,12 +225,15 @@ def application_by_name(request):
             'grade': obj.grade,
             'major': obj.major,
             'phone_number': obj.phone_number,
+            'email': getattr(obj, 'email', None),
             'gaokao_math': obj.gaokao_math,
             'gaokao_english': obj.gaokao_english,
             'follow_direction': obj.follow_direction,
             'good_at': obj.good_at,
             'reason': obj.reason,
             'future': obj.future,
+            'experience': getattr(obj, 'experience', None),
+            'other_lab': getattr(obj, 'other_lab', None),
             'value': obj.value,
             'admin_remark': getattr(obj, 'admin_remark', None),
             'book_time': obj.book_time,
@@ -338,11 +345,15 @@ def application_detail(request, app_id: int):
         'name': obj.name,
         'number': obj.number,
         'grade': obj.grade,
+        'major': getattr(obj, 'major', None),
         'phone_number': obj.phone_number,
         'gaokao_math': obj.gaokao_math,
         'gaokao_english': obj.gaokao_english,
         'follow_direction': obj.follow_direction,
         'good_at': obj.good_at,
+        'email': getattr(obj, 'email', None),
+        'other_lab': getattr(obj, 'other_lab', None),
+        'experience': getattr(obj, 'experience', None),
         'reason': obj.reason,
         'future': obj.future,
         'value': obj.value,
@@ -424,3 +435,26 @@ def publish_announcement(request):
 
     result = NotificationService.create_announcement(message, recipient_user_ids, sender_user_id=str(request.user.id))
     return JsonResponse(result)
+
+
+# --- Results release control ---
+@csrf_exempt
+@require_http_methods(["POST"])
+def release_results(request):
+    """Mark interview results as released so students can query."""
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    cache.set('interview_results_released', True, None)
+    return JsonResponse({'success': True, 'message': '已发布面试结果'})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def hide_results(request):
+    """Hide interview results until admin releases them."""
+    not_logged = _require_login(request)
+    if not_logged:
+        return not_logged
+    cache.set('interview_results_released', False, None)
+    return JsonResponse({'success': True, 'message': '已隐藏面试结果'})
