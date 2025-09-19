@@ -297,8 +297,14 @@ def application_list(request):
             "message": "请输入正确的学号"
         })
 
-    # 调用业务逻辑
-    success, message = interview_services.get_applications(student_number)
+    # 调用业务逻辑（兼容旧返回签名）
+    result = interview_services.get_applications(student_number)
+    if isinstance(result, tuple):
+        success = bool(result[0])
+        message = result[1] if len(result) > 1 else ""
+    else:
+        success = bool(result)
+        message = ""
 
     # 返回 JSON 响应
     return JsonResponse({
